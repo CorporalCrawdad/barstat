@@ -1,5 +1,11 @@
 #!/bin/sh
 fpath=$(ls /sys/class/power_*/BAT*/*full | sed 's/full//')
 echo $fpath
-echo const char* BT_FULL   = \"${fpath}full\"\;  > bat.h
-echo const char* BT_NOW    = \"${fpath}now\"\;  >> bat.h
+if [ -z $fpath]
+then
+	echo const char* BT_FULL = NULL\; >  bat.h
+	echo const char* BT_NOW  = NULL\; >> bat.h
+else
+	echo const char* BT_FULL   = \"${fpath}full\"\;  > bat.h
+	echo const char* BT_NOW    = \"${fpath}now\"\;  >> bat.h
+fi
