@@ -7,5 +7,8 @@ status.o : status.c status.h config.h bat.h
 bat.h : configure
 	./configure
 
+config.h : config.def.h
+	cp config.def.h config.h
+
 clean : 
 	rm *.o status bat.h
