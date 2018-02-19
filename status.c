@@ -386,12 +386,12 @@ int getsong(char* outs) {
 
 	if (!mpsong) 
 	{
-		fprintf(stderr, "Could not get current song\n");
+		if (verbosity) fprintf(stderr, "Could not get current song\n");
 		strcpy(outs, "NOT PLAYING");
 	}
 	else if (!mpstatus)
 	{
-		fprintf(stderr, "Could not get MPD status\n");
+		if (verbosity) fprintf(stderr, "Could not get MPD status\n");
 		strcpy(outs, "NOT PLAYING");
 	}
 	else
