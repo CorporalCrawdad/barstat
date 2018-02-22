@@ -499,7 +499,7 @@ main(int argc, char* argv[])
 	{
 		case 3:
 			printf("%s: Usage\n%s [-v]", argv[0], argv[0]);
-			break;
+			return 1;
 		case 2:
 			verbosity = atoi(argv[1]);
 			break;
