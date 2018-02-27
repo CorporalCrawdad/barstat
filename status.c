@@ -296,6 +296,7 @@ static int net_updt(void) {
 			netsbuffer[i] = fgetc (procnetdev);
 			if (netsbuffer[i] == EOF)
 				return 1;
+			if (verbosity) printf("|%s|", netsbuffer);
 			if (isspace(netsbuffer[i]))
 				break;
 		}
@@ -501,7 +502,7 @@ main(int argc, char* argv[])
 			printf("%s: Usage\n%s [-v]", argv[0], argv[0]);
 			return 1;
 		case 2:
-			verbosity = atoi(argv[1]);
+			verbosity = 1;
 			break;
 		default:
 			verbosity = 0;
