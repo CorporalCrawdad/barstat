@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <string.h>
-#include <time.h>
 #include <ctype.h>
 #include <signal.h>
 #include <unistd.h>
@@ -17,15 +16,6 @@
 #define CHAR_BUF 20
 #define HIST_CNT 5
 #define STAT_LEN 160 
-
-// MACROS
-#define testcpy() if (strlen(status) > (STAT_LEN/2)) { \
-			printf("\nstr overflow\n"); \
-			return 1; \
-		  } \
-		  printf("\nstrlen(status):%d STAT_LEN:%d\n", strlen(status), STAT_LEN);
-//strncat(status, buffer, STAT_LEN); 
-#define LENGTH(X)	(sizeof X / sizeof X[0])
 
 // FUNCTIONS
 // initializers
@@ -40,9 +30,11 @@ int getnets(int*,int*);
 int getmail(char*);
 int getmem(char*);
 int getsong(char*);
-int gettime(char*);
+char *gettime(void);
 int getvol(char*);
-int getbat(char*);
+char *getbatlvl(void);
+//char *getbatsta(void);
+//char *getbatpwr(void);
 
 // destructors
 int net_dest(void);
