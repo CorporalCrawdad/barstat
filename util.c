@@ -30,7 +30,7 @@ pscanf(const char *path, const char *fmt, ...)
 	int n;
 
 	if (!(fp = fopen(path, "r"))) {
-		warn("fopen %s: %s\n", path, sterror(errno));
+		warn("fopen %s: %s\n", path, strerror(errno));
 		return -1;
 	}
 	va_start(ap, fmt);
