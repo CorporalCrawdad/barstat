@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../util.h"
 
@@ -8,15 +9,17 @@
 #define HIST_CNT 5
 
 static void  net_init(void);
-static void  net_updt(const char *net_pref);
+static void  net_updt();
+static int   remtrans(int ul, int dl);
        void  net_dest(void);
 const  char *getnets(void*);
 
-static char  netsbuffer[ BUF_SZ ];
 static int  *ulhist[ HIST_CNT ];
 static int  *dlhist[ HIST_CNT ];
 static int   histit = -1;
-static char *savprefix = NULL;
+static char  netsbuffer[ BUF_SZ ];
+extern
+const  char  net_pref[4];
        char  buf[1024];
 
 static void
@@ -39,13 +42,14 @@ net_dest(void)
 		free (ulhist[i]);
 		free (dlhist[i]);
 	}
+	puts ("net.c closed\n");
 }
 
 // modes: 0 for dl, 1 for ul
 const char *
 getnets(void* in)
 {
-	int upload = *(int*)in;
+	int upload = (int) in;
 	int avg = 0;
 	int **histp = NULL;
 
@@ -55,7 +59,7 @@ getnets(void* in)
 
 	// update both usage arrays once per pair of calls
 	if (upload)
-		net_updt (NULL, upload);
+		net_updt ();
 
 	// array is not full, can't process avg yet
 	if (histit+1 < HIST_CNT) {
@@ -76,7 +80,7 @@ getnets(void* in)
 }
 
 static void
-net_updt(const char *net_pref)
+net_updt()
 {
 	FILE* procnetdev = fopen("/proc/net/dev", "r");
 	int   ret = 0;
@@ -86,16 +90,9 @@ net_updt(const char *net_pref)
 	char *token;
 
 	if (!net_pref) {
-		if (!savprefix) {
-			fprintf( stderr, "net_updt: attempting to update nets without prefix\n");
-			return;
-		}
-		else
-		       net_pref = savprefix;
+		fprintf( stderr, "net_updt: attempting to update nets without prefix\n");
+		return;
 	}
-	else
-		savprefix =  net_pref;
-	
 
 	if (procnetdev == NULL)
 		return ;
@@ -104,16 +101,64 @@ net_updt(const char *net_pref)
 	while (strncmp(netsbuffer, net_pref, 3))
 		fgets (netsbuffer, BUF_SZ, procnetdev);
 
+	fclose (procnetdev);
+	
+	// the 1st and 9th fields are the only ones we're interested in...
+	printf("%i\n%s\n", procnetdev, netsbuffer);
 	token = strtok (netsbuffer, " ");
-	while (token != NULL) {
-		printf ("%s\n", token);
+	for (int i=0; token != NULL; i++) {
+		switch (i) {
+			case 1:
+				netdl = atoi (token);
+				printf("netdl: %i,", netdl);
+				break;
+			case 9:
+				netul = atoi (token);
+				printf("netul: %i\n", netul);
+				break;
+		}
 		token = strtok (NULL, " ");
+	}
+	remtrans(netul, netdl);
+}
+
+static int
+remtrans(int ul, int dl)
+{
+	// less than HIST_CNT datapoints, fill array as normal
+	if (histit+1 < HIST_CNT) {
+		*ulhist[histit] = ul;
+		*dlhist[histit] = dl;
+		histit++;
+		return 0;
+	}
+	// our array is full, so rotate all the pointers back one, fill the
+	// oldest pointer with the newest value, and move that pointer to be
+	// the newest value in array.
+	else
+	{
+		int* tmp;
+		tmp = ulhist[0];
+		for (int i=0; (i+1)<HIST_CNT; i++) 
+			ulhist[i] = ulhist[i+1];
+		*tmp = ul;
+		ulhist[HIST_CNT-1] = tmp;
+		
+		tmp = dlhist[0];
+		for (int i=0; (i+1)<HIST_CNT; i++)
+			dlhist[i] = dlhist[i+1];
+		*tmp = dl;
+		dlhist[HIST_CNT-1] = tmp;
+		return 0;
 	}
 }
 
 int
 main(void)
 {
-	net_updt("wlp");
+	for (;;) {
+		printf ("%s up, %s down", getnets(NULL), getnets(NULL+1));
+		getc(stdin);
+	}
 	return 0;
 }

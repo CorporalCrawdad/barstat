@@ -6,6 +6,8 @@
 
 #include "util.h"
 
+const char net_pref[4] = "wlp";
+
 const char *
 bprintf(const char *fmt, ...)
 {
