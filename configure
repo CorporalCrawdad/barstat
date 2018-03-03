@@ -3,9 +3,9 @@ fpath=$(ls /sys/class/power_*/BAT*/*full | sed 's/full//')
 echo $fpath
 if [ -z $fpath]
 then
-	echo const char* BT_FULL = NULL\; >  bat.h
-	echo const char* BT_NOW  = NULL\; >> bat.h
+	echo const char* BT_FULL = NULL\; >  comp/bat.h/g
+	echo const char* BT_NOW  = NULL\; >> comp/bat.h/g
 else
-	echo const char* BT_FULL   = \"${fpath}full\"\;  > bat.h
-	echo const char* BT_NOW    = \"${fpath}now\"\;  >> bat.h
+	echo const char* BT_FULL   = \"${fpath}full\"\;  > comp/bat.h/g
+	echo const char* BT_NOW    = \"${fpath}now\"\;  >> comp/bat.h/g
 fi
