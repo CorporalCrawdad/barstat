@@ -100,10 +100,7 @@ net_updt()
 	// scroll through /proc/net/dev to interface
 	while (strncmp(netsbuffer, net_pref, 3)) {
 		fgets (netsbuffer, BUF_SZ, procnetdev);
-		printf("%s\n", netsbuffer);
 	}
-
-	printf("%i\n", procnetdev);
 
 	fclose (procnetdev);
 	
@@ -114,11 +111,9 @@ net_updt()
 		switch (i) {
 			case 1:
 				netdl = atol (token);
-				printf("netdl: %i,", netdl);
 				break;
 			case 9:
 				netul = atol (token);
-				printf("netul: %i\n", netul);
 				break;
 		}
 		token = strtok (NULL, " ");
