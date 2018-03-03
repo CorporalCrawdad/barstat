@@ -6,7 +6,7 @@
 #include "../util.h"
 
 #define BUF_SZ 1024
-#define HIST_CNT 5
+#define HIST_CNT 3
 
 static void  net_init(void);
 static void  net_updt();
@@ -14,8 +14,8 @@ static int   remtrans(int ul, int dl);
        void  net_dest(void);
 const  char *getnets(void*);
 
-static int  *ulhist[ HIST_CNT ];
-static int  *dlhist[ HIST_CNT ];
+static unsigned long  *ulhist[ HIST_CNT ];
+static unsigned long  *dlhist[ HIST_CNT ];
 static int   histit = -1;
 static char  netsbuffer[ BUF_SZ ];
 extern
@@ -28,8 +28,8 @@ net_init(void)
 	for (int i=0; i<sizeof(netsbuffer); i++)
 		netsbuffer[i] = 0;
 	for (int i=0; i<HIST_CNT; i++) {
-		ulhist[i] = calloc (1, sizeof(int));
-		dlhist[i] = calloc (1, sizeof(int));
+		ulhist[i] = calloc (1, sizeof(unsigned long));
+		dlhist[i] = calloc (1, sizeof(unsigned long));
 	}
 	histit = 0;
 	atexit (net_dest);
@@ -51,7 +51,7 @@ getnets(void* in)
 {
 	int upload = (int) in;
 	int avg = 0;
-	int **histp = NULL;
+	unsigned long **histp = NULL;
 
 	if (histit < 0) {
 		net_init ();
@@ -85,8 +85,8 @@ net_updt()
 	FILE* procnetdev = fopen("/proc/net/dev", "r");
 	int   ret = 0;
 	char  cbuf = '\0';
-	int   netul, netdl;
-	char  netsbuffer[BUF_SZ];
+	unsigned long netul, netdl;
+	char  netsbuffer[BUF_SZ] = {'\0'};
 	char *token;
 
 	if (!net_pref) {
@@ -98,22 +98,26 @@ net_updt()
 		return ;
 	
 	// scroll through /proc/net/dev to interface
-	while (strncmp(netsbuffer, net_pref, 3))
+	while (strncmp(netsbuffer, net_pref, 3)) {
 		fgets (netsbuffer, BUF_SZ, procnetdev);
+		printf("%s\n", netsbuffer);
+	}
+
+	printf("%i\n", procnetdev);
 
 	fclose (procnetdev);
 	
 	// the 1st and 9th fields are the only ones we're interested in...
-	printf("%i\n%s\n", procnetdev, netsbuffer);
+	//printf("\n%s\n", netsbuffer);
 	token = strtok (netsbuffer, " ");
 	for (int i=0; token != NULL; i++) {
 		switch (i) {
 			case 1:
-				netdl = atoi (token);
+				netdl = atol (token);
 				printf("netdl: %i,", netdl);
 				break;
 			case 9:
-				netul = atoi (token);
+				netul = atol (token);
 				printf("netul: %i\n", netul);
 				break;
 		}
@@ -137,7 +141,7 @@ remtrans(int ul, int dl)
 	// the newest value in array.
 	else
 	{
-		int* tmp;
+		long* tmp;
 		tmp = ulhist[0];
 		for (int i=0; (i+1)<HIST_CNT; i++) 
 			ulhist[i] = ulhist[i+1];
