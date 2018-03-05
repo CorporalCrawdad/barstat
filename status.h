@@ -19,25 +19,22 @@
 
 // FUNCTIONS
 // initializers
-int net_init(void);
 int mop_init(void);
 
-// query interfaces
+// old query interfaces
 int getchat(char*);
-int getnetu(char*);
-int getnetd(char*);
 int getnets(int*,int*);
 int getmail(char*);
 int getmem(char*);
 int getsong(char*);
-char *gettime(void);
 int getvol(char*);
-char *getbatlvl(void);
-//char *getbatsta(void);
-//char *getbatpwr(void);
+// query interfaces
+const char *getnetu(void);
+const char *getnetd(void);
+const char *gettime(void);
+const char *getbatlvl(void);
 
 // destructors
-int net_dest(void);
 int mop_dest(void);
 
 //typedefs

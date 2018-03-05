@@ -12,7 +12,9 @@ static void  net_init(void);
 static void  net_updt();
 static int   remtrans(int ul, int dl);
        void  net_dest(void);
-const  char *getnets(void*);
+const  char *getnetu(void);
+const  char *getnetd(void);
+const  static int getnets(int);
 
 static unsigned long  *ulhist[ HIST_CNT ];
 static unsigned long  *dlhist[ HIST_CNT ];
@@ -42,14 +44,12 @@ net_dest(void)
 		free (ulhist[i]);
 		free (dlhist[i]);
 	}
-	puts ("net.c closed\n");
 }
 
 // modes: 0 for dl, 1 for ul
-const char *
-getnets(void* in)
+static int
+getnets(int upload)
 {
-	int upload = (int) in;
 	int avg = 0;
 	unsigned long **histp = NULL;
 
@@ -63,7 +63,7 @@ getnets(void* in)
 
 	// array is not full, can't process avg yet
 	if (histit+1 < HIST_CNT) {
-		return bprintf ("0");
+		return 0;
 	}
 
 	if (upload)
@@ -76,7 +76,7 @@ getnets(void* in)
 		avg += *histp[i] - *histp[i-1];
 	}
 	// average them out and return the result
-	return bprintf ("%i", (avg / (HIST_CNT-1)));
+	return (avg / (HIST_CNT-1));
 }
 
 static void
@@ -152,12 +152,60 @@ remtrans(int ul, int dl)
 	}
 }
 
-int
-main(void)
+const char *
+getnetu(void)
 {
-	for (;;) {
-		printf ("%s up, %s down", getnets(NULL), getnets(NULL+1));
-		getc(stdin);
+	int speed = getnets(1);
+	
+	if (speed)
+	{
+		if(speed/1000)
+		{
+			if(speed/1000000)
+			{
+				if (speed/1000000000)
+				{
+					return bprintf ("%.1fGB", ((float)speed/1000000000.00));
+				}
+				else
+					return bprintf ("%.1fMB", ((float)speed/1000000.00));
+			}
+			else
+				return bprintf ("%.1fKB", ((float)speed/1000.00));
+		}
+		else
+			return bprintf ("%dB", speed);
 	}
-	return 0;
+	else
+		return bprintf ("%dB", speed);
+	return bprintf("%i", 0);
+}
+
+const char *
+getnetd(void)
+{
+	int speed = getnets(0);
+	
+	if (speed)
+	{
+		if(speed/1000)
+		{
+			if(speed/1000000)
+			{
+				if (speed/1000000000)
+				{
+					return bprintf ("%.1fGB", ((float)speed/1000000000.00));
+				}
+				else
+					return bprintf ("%.1fMB", ((float)speed/1000000.00));
+			}
+			else
+				return bprintf ("%.1fKB", ((float)speed/1000.00));
+		}
+		else
+			return bprintf ("%dB", speed);
+	}
+	else
+		return bprintf ("%dB", speed);
+	return bprintf("%i", 0);
 }
