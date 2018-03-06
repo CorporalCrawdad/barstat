@@ -8,6 +8,7 @@ const char *getnetu(void);
 const char *getnetd(void);
 const char *gettime(void);
 const char *getsong(void);
+const char *getvolm(void);
 
 Display *dpy;
 Window   root;
@@ -37,11 +38,11 @@ main()
 	for (;;) {
 		status[0] = '\0';
 		len = 0;
-		len += snprintf(status + len, sizeof(status) - len,
+		/*len += snprintf(status + len, sizeof(status) - len,
 		                "🔋%s%%    ", getbatlvl());
 		if (len >= sizeof(status)) {
 			status[sizeof(status) - 1] = '\0';
-		}
+		}*/
 		len += snprintf(status + len, sizeof(status) - len,
 		                "🖧%sU|", getnetu());
 		if (len >= sizeof(status)) {
@@ -54,6 +55,12 @@ main()
 		}
 		len += snprintf(status + len, sizeof(status) - len,
 		                "♫%s    ", getsong());
+
+		if (len >= sizeof(status)) {
+			status[sizeof(status) - 1] = '\0';
+		}
+		len += snprintf(status + len, sizeof(status) - len,
+		                "🔊%s    ", getvolm());
 
 		if (len >= sizeof(status)) {
 			status[sizeof(status) - 1] = '\0';
