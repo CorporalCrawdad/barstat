@@ -44,12 +44,12 @@ main()
 			status[sizeof(status) - 1] = '\0';
 		}*/
 		len += snprintf(status + len, sizeof(status) - len,
-		                "🖧%sU|", getnetu());
+		                "🖧%s↾", getnetu());
 		if (len >= sizeof(status)) {
 			status[sizeof(status) - 1] = '\0';
 		}
 		len += snprintf(status + len, sizeof(status) - len,
-		                "%sD    ", getnetd());
+		                " %s⇂    ", getnetd());
 		if (len >= sizeof(status)) {
 			status[sizeof(status) - 1] = '\0';
 		}
