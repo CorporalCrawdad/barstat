@@ -22,20 +22,17 @@ mop_init()
 		atexit(mop_dest);
 		mpstate = 0;
 	}
-	if (!mpconn) {
+	if (!mpconn) 
 		mpconn = mpd_connection_new(NULL, 0, 1000);
-		if (mpconn) {
-			if (mpd_connection_get_error(mpconn)) {
-				fprintf(stderr, "Connection failure! Error code %i.\n",
-					       	mpd_connection_get_error(mpconn));
-				mpconn = NULL;
-			}
-			// connected!
-		} else {
-			fprintf(stderr, "Connection failure! Out of memory!!\n");
-			return 1;
-		}
+	if (mpconn) {
+		if (mpd_connection_get_error(mpconn))
+			mpconn = NULL;
+		// connected!
+	} else {
+		fprintf(stderr, "Connection failure! Out of memory!!\n");
+		return 1;
 	}
+	
 	return (mpconn) ? 0 : 1;
 }
 
@@ -44,11 +41,13 @@ mop_dest()
 {
 	if (mpconn) {
 		puts("Disconnecting from MPD...\n");
-		mpd_status_free(mpstatus);
-		mpd_connection_free(mpconn);
-		mpd_song_free(mpsong);
+		if (mpstatus) mpd_status_free(mpstatus);
+		if (mpconn)   mpd_connection_free(mpconn);
+		if (mpsong)   mpd_song_free(mpsong);
 	}
 	mpsong_name = NULL;
+	mpstate = 0;
+	mpconn  = NULL;
 	return;
 }
 
@@ -61,7 +60,8 @@ getsong()
 	
 	mpstatus = mpd_run_status(mpconn);
 	mpsong   = mpd_run_current_song(mpconn);
-	mpstate  = mpd_status_get_state(mpstatus);
+	if (mpstatus)
+		mpstate  = mpd_status_get_state(mpstatus);
 
 	if (!mpsong) {
 		return bprintf("NOT PLAYING");
