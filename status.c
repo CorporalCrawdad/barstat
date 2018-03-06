@@ -415,7 +415,7 @@ int mop_init(void) {
 	if (verbosity)
 		puts("hello");
 	if (!mpconn) {
-		mpconn = mpd_connection_new(NULL, 0, 0);
+		mpconn = mpd_connection_new(NULL, 0, 500);
 		if (mpconn)
 		{
 			if (mpd_connection_get_error(mpconn))
