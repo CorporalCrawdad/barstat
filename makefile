@@ -1,29 +1,26 @@
-status : status.o batt.o
-	gcc status.o comps/batt.o comps/mopd.o comps/nets.o comps/time.o comps/volm.o -o status -lasound -lmpdclient -lX11
+COMPS= comps/mopd\
+       comps/batt\
+       comps/nets\
+       comps/time\
+       comps/volm
 
-status.o : status.c status.h config.h bat.h
-	gcc -c status.c
+barstat : barstat.o $(COMPS:=.o) util.o
+	gcc barstat.o $(COMPS:=.o) util.o -o barstat -lasound -lmpdclient -lX11
+
+util.o : util.c util.h
+	gcc -c util.c
+
+barstat.o : barstat.c status.h config.h
+	gcc -c barstat.c
 
 comps/bat.h : configure
 	./configure
 
-comps/batt.o : batt.c bat.h
-	gcc -c batt.c
-
-comps/mopd.o : mopd.c
-
-
-comps/nets.o : nets.c
-
-
-comps/time.o : time.c
-
-
-comps/volm.o : volm.c
-
+$(COMPS:=.o) : $(@:.o=.c) util.o comps/bat.h
+	gcc -o $@ -c $(@:.o=.c) util.o
 
 config.h : config.def.h
 	cp config.def.h config.h
 
 clean : 
-	rm *.o */*.o status comps/bat.h
+	rm *.o barstat comps/bat.h
