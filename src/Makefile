@@ -17,7 +17,7 @@ comps/bat.h : configure
 	./configure
 
 $(COMPS:=.o) : $(@:.o=.c) util.o comps/bat.h
-	gcc -o $@ -c $(@:.o=.c) util.o
+	gcc -o $@ -c $(@:.o=.c)
 
 config.h : config.def.h
 	cp config.def.h config.h
