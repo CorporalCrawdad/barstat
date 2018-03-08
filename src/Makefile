@@ -5,7 +5,7 @@ COMPS= comps/mopd\
        comps/volm
 
 barstat : barstat.o $(COMPS:=.o) util.o
-	gcc barstat.o $(COMPS:=.o) util.o -o barstat -lasound -lmpdclient -lX11
+	gcc barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11
 
 util.o : util.c util.h
 	gcc -c util.c

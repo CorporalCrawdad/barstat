@@ -28,9 +28,8 @@ cleanup()
 int
 main()
 {
-	size_t   len = 0;
+	size_t   len = 0, buflen;
 	char     status[1024] = {'\0'};
-	char    *buffer;
 
 	if ( (dpy=XOpenDisplay(NULL)) == NULL) {
 		fprintf(stderr, "ERROR: could not open display\n");
@@ -48,8 +47,14 @@ main()
 			if (len >= sizeof(status)) 
 				status[sizeof(status) - 1] = '\0';
 			
-			len += snprintf(status + len, sizeof(status) - len,
-					"%s", items[i].getfunc());
+			buflen = len;
+			len += snprintf(status + len, 
+					(((sizeof(status) - len) < items[i].width) || !items[i].width)
+						?sizeof(status) - len
+						: items[i].width + 1,
+					"%*s",  items[i].width, items[i].getfunc());
+
+			len = strlen(status);
 			if (len >= sizeof(status)) 
 				status[sizeof(status) - 1] = '\0';
 
@@ -92,6 +97,7 @@ main()
 			status[sizeof(status) - 1] = '\0';
 		}*/
 //		printf("\e[2K\e[s %s\e[u", status);
+//		printf("%s\n\n", status);
 //		fflush(stdout);
 		XStoreName(dpy, root, status);
 		XFlush(dpy);
