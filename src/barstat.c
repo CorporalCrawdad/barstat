@@ -63,39 +63,6 @@ main()
 			if (len >= sizeof(status)) 
 				status[sizeof(status) - 1] = '\0';
 		}
-		/*len += snprintf(status + len, sizeof(status) - len,
-		                "🔋%s%%    ", getbatlvl());
-		if (len >= sizeof(status)) {
-			status[sizeof(status) - 1] = '\0';
-		}
-		len += snprintf(status + len, sizeof(status) - len,
-		                "🖧%s↾", getnetu());
-		if (len >= sizeof(status)) {
-			status[sizeof(status) - 1] = '\0';
-		}
-		len += snprintf(status + len, sizeof(status) - len,
-		                " %s⇂    ", getnetd());
-		if (len >= sizeof(status)) {
-			status[sizeof(status) - 1] = '\0';
-		}
-		len += snprintf(status + len, sizeof(status) - len,
-		                "♫%s    ", getsong());
-
-		if (len >= sizeof(status)) {
-			status[sizeof(status) - 1] = '\0';
-		}
-		len += snprintf(status + len, sizeof(status) - len,
-		                "🔊%s    ", getvolm());
-
-		if (len >= sizeof(status)) {
-			status[sizeof(status) - 1] = '\0';
-		}
-		len += snprintf(status + len, sizeof(status) - len,
-		                "⏲[%s]", gettime());
-
-		if (len >= sizeof(status)) {
-			status[sizeof(status) - 1] = '\0';
-		}*/
 //		printf("\e[2K\e[s %s\e[u", status);
 //		printf("%s\n\n", status);
 //		fflush(stdout);
