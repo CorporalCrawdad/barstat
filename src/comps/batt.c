@@ -2,6 +2,12 @@
 #include "../util.h"
 #include "bat.h"
 
+void
+batt_hook(void)
+{
+	system("ZZZ");
+}
+
 const char *
 getbatlvl(void)
 {
@@ -14,7 +20,10 @@ getbatlvl(void)
 		}
 
 	if (chnow)
-		if (chfull)
+		if (chfull) {
+			if (((chnow*100)/chfull) < 5)
+				batt_hook();
 			return bprintf("%i", ((chnow*100)/chfull));
+		}
 	return bprintf("%i", 0);
 }
