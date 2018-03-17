@@ -2,6 +2,7 @@ COMPS= comps/mopd\
        comps/batt\
        comps/nets\
        comps/time\
+       comps/rams\
        comps/volm
 
 barstat : barstat.o $(COMPS:=.o) util.o

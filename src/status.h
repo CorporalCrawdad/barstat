@@ -11,6 +11,9 @@ const char *getnetd(void);
 const char *gettime(void);
 const char *getsong(void);
 const char *getvolm(void);
+const char *getramp(void);
+const char *getramu(void);
+const char *getramt(void);
 
 //typedefs
 typedef struct {

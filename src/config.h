@@ -6,8 +6,8 @@ baritem items[] = {
 	{ getvolm,		"🔈[",	3,		"%]    " },
 	{ getbatlvl,		"🔋[",	3,		"%]    " },
 	{ getnetu,		"网[",	5,		"上"   },
-	{ getnetd,		" ",		5,		"下]    "  },
+	{ getnetd,		" ",		5,		"下]"  },
 	{ gettime,		"时[",		21,		"]"  },
 };
 
-const char net_pref[4] = "wlp";
+const char* net_pref = "wlp";
