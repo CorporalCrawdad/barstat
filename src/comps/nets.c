@@ -152,10 +152,10 @@ remtrans(int ul, int dl)
 	}
 }
 
-const char *
-getnetu(void)
+const char*
+procmedaddy(int speed)
 {
-	int speed = getnets(1);
+	char buf[6] = {'\0'};
 	
 	if (speed)
 	{
@@ -165,47 +165,45 @@ getnetu(void)
 			{
 				if (speed/1000000000)
 				{
-					return bprintf ("%.1fGB", ((float)speed/1000000000.00));
+					//return bprintf ("%.1fGB", ((float)speed/1000000000.00));
+					snprintf(buf, 5, "%.1f", ((float)speed/1000000000.00));
+					if ( buf[3] == '.' )
+						buf[3] = '\0';
+					return bprintf ("%sGB", buf);
+				} else { 
+					//return bprintf ("%.1fMB", ((float)speed/1000000.00));
+					snprintf(buf, 5, "%.1f", ((float)speed/1000000.00));
+					if ( buf[3] == '.' )
+						buf[3] = '\0';
+					return bprintf ("%sMB", buf);
 				}
-				else
-					return bprintf ("%.1fMB", ((float)speed/1000000.00));
+			} else {
+				//return bprintf ("%.1fKB", ((float)speed/1000.00));
+				snprintf(buf, 5, "%.1f", ((float)speed/1000.00));
+				if ( buf[3] == '.' ) 
+					buf[3] = '\0';
+				return bprintf ("%sKB", buf);
 			}
-			else
-				return bprintf ("%.1fKB", ((float)speed/1000.00));
 		}
 		else
-			return bprintf ("%dB", speed);
+			return bprintf ("%3dB", speed);
 	}
 	else
-		return bprintf ("%dB", speed);
+		return bprintf ("%3dB", speed);
 	return bprintf("%i", 0);
+}
+
+
+const char *
+getnetu(void)
+{
+	int speed = getnets(1);
+	return procmedaddy(speed);
 }
 
 const char *
 getnetd(void)
 {
 	int speed = getnets(0);
-	
-	if (speed)
-	{
-		if(speed/1000)
-		{
-			if(speed/1000000)
-			{
-				if (speed/1000000000)
-				{
-					return bprintf ("%.1fGB", ((float)speed/1000000000.00));
-				}
-				else
-					return bprintf ("%.1fMB", ((float)speed/1000000.00));
-			}
-			else
-				return bprintf ("%.1fKB", ((float)speed/1000.00));
-		}
-		else
-			return bprintf ("%dB", speed);
-	}
-	else
-		return bprintf ("%dB", speed);
-	return bprintf("%i", 0);
+	return procmedaddy(speed);
 }
