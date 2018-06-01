@@ -21,7 +21,7 @@ static unsigned long  *dlhist[ HIST_CNT ];
 static int   histit = -1;
 static char  netsbuffer[ BUF_SZ ];
 extern
-const  char  net_pref[4];
+const  char*  net_pref;
        char  buf[1024];
 
 static void
@@ -96,11 +96,13 @@ net_updt()
 
 	if (procnetdev == NULL)
 		return ;
+
 	
 	// scroll through /proc/net/dev to interface
 	while (strncmp(netsbuffer, net_pref, 3)) {
 		fgets (netsbuffer, BUF_SZ, procnetdev);
 	}
+
 
 	fclose (procnetdev);
 	
