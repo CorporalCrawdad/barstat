@@ -17,34 +17,40 @@ const  char *getnetd(void);
 const  static int getnets(int);
 static const char* procmedaddy(int);
 
-static unsigned long  *ulhist[ HIST_CNT ];
-static unsigned long  *dlhist[ HIST_CNT ];
-static int   histit = -1;
-static char  netsbuffer[ BUF_SZ ];
+typedef struct ifacehist
+{
+	static unsigned long  *ulhist[ HIST_CNT ];
+	static unsigned long  *dlhist[ HIST_CNT ];
+	static char  netsbuffer[ BUF_SZ ];
+	static int   histit = -1;
+	char  net_pref[5] = "\0";
+}ifaces[MAX_IFACES];
 extern
-const  char*  net_pref;
        char  buf[1024];
 
 static void
 net_init(void)
 {
-	for (int i=0; i<sizeof(netsbuffer); i++)
-		netsbuffer[i] = 0;
-	for (int i=0; i<HIST_CNT; i++) {
-		ulhist[i] = calloc (1, sizeof(unsigned long));
-		dlhist[i] = calloc (1, sizeof(unsigned long));
+	for (int ii=0; ii<MAX_IFACES; ii++) {
+		for (int i=0; i<sizeof(ifaces[ii].netsbuffer); i++)
+			ifaces[ii].netsbuffer[i] = 0;
+		for (int i=0; i<HIST_CNT; i++) {
+			ifaces[ii].ulhist[i] = calloc (1, sizeof(unsigned long));
+			ifaces[ii].dlhist[i] = calloc (1, sizeof(unsigned long));
+		}
+		ifaces[ii].histit = 0;
 	}
-	histit = 0;
 	atexit (net_dest);
 }
 
 void
 net_dest(void)
 {
-	for (int i=0; i<HIST_CNT; i++) {
-		free (ulhist[i]);
-		free (dlhist[i]);
-	}
+	for (int ii=0; ii<MAX_IFACES; ii++)
+		for (int i=0; i<HIST_CNT; i++) {
+			free (ifaces[ii].ulhist[i]);
+			free (ifaces[ii].dlhist[i]);
+		}
 }
 
 // modes: 0 for dl, 1 for ul
@@ -58,26 +64,29 @@ getnets(int upload)
 		net_init ();
 	}
 
-	// update both usage arrays once per pair of calls
+	// update both usage arrays of all interfaces once per pair of calls
 	if (upload)
 		net_updt ();
 
 	// array is not full, can't process avg yet
-	if (histit+1 < HIST_CNT) {
-		return 0;
-	}
+	for (int i=0; i<tracked_ifaces; i++)
+		if (ifaces[i].histit+1 < HIST_CNT) {
+			return 0;
+		}
 
-	if (upload)
-		histp = ulhist;
-	else
-		histp = dlhist;
-
-	// get total differences between each data point
-	for (int i=1; i<HIST_CNT; i++) {
-		avg += *histp[i] - *histp[i-1];
+	for (int i=0; i<tracked_ifaces; i++) {
+		if (upload)
+			histp = ifaces[i].ulhist;
+		else
+			histp = ifaces[i].dlhist;
+	
+		// get total differences between each data point
+		for (int ii=1; ii<HIST_CNT; ii++) {
+			avg += *ifaces[i].histp[ii] - *ifaces[i].histp[ii-1];
+		}
 	}
 	// average them out and return the result
-	return (avg / (HIST_CNT-1));
+	return (avg / ((HIST_CNT-1)*tracked_ifaces));
 }
 
 static void
