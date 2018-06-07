@@ -12,7 +12,7 @@ getvolm()
 	snd_mixer_selem_id_t* sid;
 
 	static const char* mix_name  = "Master";
-	static const char* card      = "default";
+	static const char* card      = "hw:0";
 	static       int   mix_index = 0;
 
 	long pmin, pmax;

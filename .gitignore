@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Config headers
+config.h
+bat.h
+
+# der executable
+barstat
