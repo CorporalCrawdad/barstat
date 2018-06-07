@@ -4,6 +4,8 @@
 
 #include "../util.h"
 
+const char *alsa_device;
+
 const char *
 getvolm()
 {
@@ -12,7 +14,7 @@ getvolm()
 	snd_mixer_selem_id_t* sid;
 
 	static const char* mix_name  = "Master";
-	static const char* card      = "hw:0";
+//	static const char* card      = "hw:0";
 	static       int   mix_index = 0;
 
 	long pmin, pmax;
@@ -28,7 +30,7 @@ getvolm()
 
 	if ((snd_mixer_open(&handle,0)) < 0 )
 		return bprintf("-1");
-	if ((snd_mixer_attach(handle, card)) < 0) {
+	if ((snd_mixer_attach(handle, alsa_device)) < 0) {
 		snd_mixer_close(handle);
 		return bprintf("-2");
 	}

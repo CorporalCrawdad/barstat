@@ -20,7 +20,7 @@ $(COMPS:=.o) : $(@:.o=.c) util.o comps/bat.h
 	gcc -o $@ -c $(@:.o=.c)
 
 config.h : config.def.h
-	cp config.def.h config.h
+	cp config.def.h config.h -n
 
 barstat : barstat.o $(COMPS:=.o) util.o
 	gcc barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11

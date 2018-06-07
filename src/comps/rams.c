@@ -3,6 +3,11 @@
 
 #include "../util.h"
 
+const char* getramf(void);
+const char* getramp(void);
+const char* getramt(void);
+const char* getramu(void);
+
 const char *
 getramf(void)
 {

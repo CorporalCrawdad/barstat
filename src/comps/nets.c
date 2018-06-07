@@ -15,6 +15,7 @@ static int   remtrans(int ul, int dl);
 const  char *getnetu(void);
 const  char *getnetd(void);
 const  static int getnets(int);
+static const char* procmedaddy(int);
 
 static unsigned long  *ulhist[ HIST_CNT ];
 static unsigned long  *dlhist[ HIST_CNT ];
@@ -154,6 +155,7 @@ remtrans(int ul, int dl)
 	}
 }
 
+static
 const char*
 procmedaddy(int speed)
 {
