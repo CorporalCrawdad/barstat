@@ -57,3 +57,4 @@ bat.h
 
 # der executable
 barstat
+compile_commands.json
