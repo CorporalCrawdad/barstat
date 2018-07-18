@@ -7,24 +7,28 @@
 
 #define BUF_SZ 1024
 #define HIST_CNT 3
+#define MAX_IFACES 6
+
+struct ifacehist
+{
+	unsigned long  *ulhist[ HIST_CNT ];
+	unsigned long  *dlhist[ HIST_CNT ];
+	char  netsbuffer[ BUF_SZ ];
+	int   histit;
+	char  net_pref[7];
+}ifaces[MAX_IFACES];
 
 static void  net_init(void);
-static void  net_updt();
-static int   remtrans(int ul, int dl);
+static void  net_updt(struct ifacehist);
+static int   remtrans(int ul, int dl, struct ifacehist);
        void  net_dest(void);
 const  char *getnetu(void);
 const  char *getnetd(void);
 const  static int getnets(int);
 static const char* procmedaddy(int);
 
-typedef struct ifacehist
-{
-	static unsigned long  *ulhist[ HIST_CNT ];
-	static unsigned long  *dlhist[ HIST_CNT ];
-	static char  netsbuffer[ BUF_SZ ];
-	static int   histit = -1;
-	char  net_pref[5] = "\0";
-}ifaces[MAX_IFACES];
+int tracked_ifaces = -1;
+
 extern
        char  buf[1024];
 
@@ -41,6 +45,21 @@ net_init(void)
 		ifaces[ii].histit = 0;
 	}
 	atexit (net_dest);
+
+	// probe file and setup ifacehist prefixes
+	FILE* procnetdev = fopen("/proc/net/dev", "r");
+	char *prefbuf = (char*) malloc(256*sizeof(char));
+
+	fgets(prefbuf, 256, procnetdev);
+	fgets(prefbuf, 256, procnetdev);
+	while (!feof(procnetdev)) {
+		tracked_ifaces++;
+		fgets(prefbuf, 256, procnetdev);
+		snprintf(ifaces[tracked_ifaces].net_pref, 7, prefbuf);
+	}
+	fclose(procnetdev);
+	free(prefbuf);
+
 }
 
 void
@@ -60,13 +79,14 @@ getnets(int upload)
 	int avg = 0;
 	unsigned long **histp = NULL;
 
-	if (histit < 0) {
+	if (tracked_ifaces < 0) {
 		net_init ();
 	}
 
 	// update both usage arrays of all interfaces once per pair of calls
 	if (upload)
-		net_updt ();
+		for (int i=-1; i<tracked_ifaces; i++)
+			net_updt (ifaces[tracked_ifaces]);
 
 	// array is not full, can't process avg yet
 	for (int i=0; i<tracked_ifaces; i++)
@@ -82,7 +102,7 @@ getnets(int upload)
 	
 		// get total differences between each data point
 		for (int ii=1; ii<HIST_CNT; ii++) {
-			avg += *ifaces[i].histp[ii] - *ifaces[i].histp[ii-1];
+			avg += *histp[ii] - *histp[ii-1];
 		}
 	}
 	// average them out and return the result
@@ -90,7 +110,7 @@ getnets(int upload)
 }
 
 static void
-net_updt()
+net_updt(struct ifacehist this)
 {
 	FILE* procnetdev = fopen("/proc/net/dev", "r");
 	int   ret = 0;
@@ -99,18 +119,25 @@ net_updt()
 	char  netsbuffer[BUF_SZ] = {'\0'};
 	char *token;
 
-	if (!net_pref) {
+	if (!this.net_pref) {
 		fprintf( stderr, "net_updt: attempting to update nets without prefix\n");
 		return;
 	}
 
-	if (procnetdev == NULL)
+	if (procnetdev == NULL) {
+		fprintf( stderr, "net_updt: could not open /proc/net/dev");
 		return ;
+	}
 
 	
 	// scroll through /proc/net/dev to interface
-	while (strncmp(netsbuffer, net_pref, 3)) {
+	while (strncmp(netsbuffer, this.net_pref, 6) && !feof(procnetdev)) {
 		fgets (netsbuffer, BUF_SZ, procnetdev);
+	}
+	if (feof(procnetdev)) {
+		fprintf( stderr, "net_updt: hit eof without match");
+		fclose(procnetdev);
+		return;
 	}
 
 
@@ -130,17 +157,18 @@ net_updt()
 		}
 		token = strtok (NULL, " ");
 	}
-	remtrans(netul, netdl);
+	printf("%s: %i, %i\n", this.net_pref, netul, netdl);
+	remtrans(netul, netdl, this);
 }
 
 static int
-remtrans(int ul, int dl)
+remtrans(int ul, int dl, struct ifacehist this)
 {
 	// less than HIST_CNT datapoints, fill array as normal
-	if (histit+1 < HIST_CNT) {
-		*ulhist[histit] = ul;
-		*dlhist[histit] = dl;
-		histit++;
+	if (this.histit+1 < HIST_CNT) {
+		*this.ulhist[this.histit] = ul;
+		*this.dlhist[this.histit] = dl;
+		this.histit++;
 		return 0;
 	}
 	// our array is full, so rotate all the pointers back one, fill the
@@ -149,17 +177,17 @@ remtrans(int ul, int dl)
 	else
 	{
 		long* tmp;
-		tmp = ulhist[0];
+		tmp = this.ulhist[0];
 		for (int i=0; (i+1)<HIST_CNT; i++) 
-			ulhist[i] = ulhist[i+1];
+			this.ulhist[i] = this.ulhist[i+1];
 		*tmp = ul;
-		ulhist[HIST_CNT-1] = tmp;
+		this.ulhist[HIST_CNT-1] = tmp;
 		
-		tmp = dlhist[0];
+		tmp = this.dlhist[0];
 		for (int i=0; (i+1)<HIST_CNT; i++)
-			dlhist[i] = dlhist[i+1];
+			this.dlhist[i] = this.dlhist[i+1];
 		*tmp = dl;
-		dlhist[HIST_CNT-1] = tmp;
+		this.dlhist[HIST_CNT-1] = tmp;
 		return 0;
 	}
 }

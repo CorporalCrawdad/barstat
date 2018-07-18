@@ -6,6 +6,8 @@
 
 #include "util.h"
 
+char buf[1024];
+
 const char *
 bprintf(const char *fmt, ...)
 {
