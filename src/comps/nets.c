@@ -19,8 +19,8 @@ struct ifacehist
 }ifaces[MAX_IFACES];
 
 static void  net_init(void);
-static void  net_updt(struct ifacehist);
-static int   remtrans(int ul, int dl, struct ifacehist);
+static void  net_updt(int);
+static int   remtrans(int ul, int dl, int); 
        void  net_dest(void);
 const  char *getnetu(void);
 const  char *getnetd(void);
@@ -52,10 +52,14 @@ net_init(void)
 
 	fgets(prefbuf, 256, procnetdev);
 	fgets(prefbuf, 256, procnetdev);
-	while (!feof(procnetdev)) {
-		tracked_ifaces++;
+	while (1) {
 		fgets(prefbuf, 256, procnetdev);
+		if(feof(procnetdev)) break;
+		if (!strncmp(prefbuf, "    lo", 6))
+			continue;	
+		tracked_ifaces++;
 		snprintf(ifaces[tracked_ifaces].net_pref, 7, prefbuf);
+		printf("Recognized interface #%i: %s\n", tracked_ifaces, ifaces[tracked_ifaces].net_pref);
 	}
 	fclose(procnetdev);
 	free(prefbuf);
@@ -85,33 +89,35 @@ getnets(int upload)
 
 	// update both usage arrays of all interfaces once per pair of calls
 	if (upload)
-		for (int i=-1; i<tracked_ifaces; i++)
-			net_updt (ifaces[tracked_ifaces]);
+		for (int i=0; i<=tracked_ifaces; i++)
+			net_updt (i);
 
 	// array is not full, can't process avg yet
-	for (int i=0; i<tracked_ifaces; i++)
-		if (ifaces[i].histit+1 < HIST_CNT) {
+	for (int i=0; i<=tracked_ifaces; i++)
+		if (ifaces[i].histit+1 < HIST_CNT) 
 			return 0;
-		}
 
-	for (int i=0; i<tracked_ifaces; i++) {
+	for (int i=0; i<=tracked_ifaces; i++) {
 		if (upload)
 			histp = ifaces[i].ulhist;
 		else
 			histp = ifaces[i].dlhist;
 	
 		// get total differences between each data point
-		for (int ii=1; ii<HIST_CNT; ii++) {
+		for (int ii=1; ii<HIST_CNT; ii++)
 			avg += *histp[ii] - *histp[ii-1];
-		}
 	}
-	// average them out and return the result
-	return (avg / ((HIST_CNT-1)*tracked_ifaces));
+	// average them out and return the result, avoiding dividing by 0
+	if(tracked_ifaces)
+		return (avg / ((HIST_CNT-1)*tracked_ifaces));
+	else
+		return (avg);
 }
 
 static void
-net_updt(struct ifacehist this)
+net_updt(int this)
 {
+	//printf("net_updt: updating %s\n", ifaces[this].net_pref);
 	FILE* procnetdev = fopen("/proc/net/dev", "r");
 	int   ret = 0;
 	char  cbuf = '\0';
@@ -119,7 +125,7 @@ net_updt(struct ifacehist this)
 	char  netsbuffer[BUF_SZ] = {'\0'};
 	char *token;
 
-	if (!this.net_pref) {
+	if (!ifaces[this].net_pref) {
 		fprintf( stderr, "net_updt: attempting to update nets without prefix\n");
 		return;
 	}
@@ -131,7 +137,7 @@ net_updt(struct ifacehist this)
 
 	
 	// scroll through /proc/net/dev to interface
-	while (strncmp(netsbuffer, this.net_pref, 6) && !feof(procnetdev)) {
+	while (strncmp(netsbuffer, ifaces[this].net_pref, 6) && !feof(procnetdev)) {
 		fgets (netsbuffer, BUF_SZ, procnetdev);
 	}
 	if (feof(procnetdev)) {
@@ -157,18 +163,17 @@ net_updt(struct ifacehist this)
 		}
 		token = strtok (NULL, " ");
 	}
-	printf("%s: %i, %i\n", this.net_pref, netul, netdl);
 	remtrans(netul, netdl, this);
 }
 
 static int
-remtrans(int ul, int dl, struct ifacehist this)
+remtrans(int ul, int dl, int this)
 {
 	// less than HIST_CNT datapoints, fill array as normal
-	if (this.histit+1 < HIST_CNT) {
-		*this.ulhist[this.histit] = ul;
-		*this.dlhist[this.histit] = dl;
-		this.histit++;
+	if (ifaces[this].histit+1 < HIST_CNT) {
+		*ifaces[this].ulhist[ifaces[this].histit] = ul;
+		*ifaces[this].dlhist[ifaces[this].histit] = dl;
+		ifaces[this].histit++;
 		return 0;
 	}
 	// our array is full, so rotate all the pointers back one, fill the
@@ -177,17 +182,17 @@ remtrans(int ul, int dl, struct ifacehist this)
 	else
 	{
 		long* tmp;
-		tmp = this.ulhist[0];
+		tmp = ifaces[this].ulhist[0];
 		for (int i=0; (i+1)<HIST_CNT; i++) 
-			this.ulhist[i] = this.ulhist[i+1];
+			ifaces[this].ulhist[i] = ifaces[this].ulhist[i+1];
 		*tmp = ul;
-		this.ulhist[HIST_CNT-1] = tmp;
+		ifaces[this].ulhist[HIST_CNT-1] = tmp;
 		
-		tmp = this.dlhist[0];
+		tmp = ifaces[this].dlhist[0];
 		for (int i=0; (i+1)<HIST_CNT; i++)
-			this.dlhist[i] = this.dlhist[i+1];
+			ifaces[this].dlhist[i] = ifaces[this].dlhist[i+1];
 		*tmp = dl;
-		this.dlhist[HIST_CNT-1] = tmp;
+		ifaces[this].dlhist[HIST_CNT-1] = tmp;
 		return 0;
 	}
 }
