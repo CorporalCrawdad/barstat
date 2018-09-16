@@ -8,6 +8,10 @@
 
 char buf[1024];
 
+#ifndef __GNUC__
+void*   __dso_handle = (void*) &__dso_handle;
+#endif // __GNUC__
+
 const char *
 bprintf(const char *fmt, ...)
 {

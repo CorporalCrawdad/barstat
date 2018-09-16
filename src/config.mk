@@ -6,3 +6,5 @@ VERSION = 1.0
 # paths
 PREFIX = /opt
 
+# compiler options
+CXX = tcc
