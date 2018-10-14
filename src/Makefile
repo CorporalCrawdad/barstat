@@ -7,6 +7,7 @@ COMPS= comps/mopd\
        comps/nets\
        comps/time\
        comps/rams\
+		 comps/updt\
        comps/volm
 
 util.o : util.c util.h

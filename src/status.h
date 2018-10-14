@@ -14,6 +14,7 @@ const char *getvolm(void);
 const char *getramp(void);
 const char *getramu(void);
 const char *getramt(void);
+const char *getupdt(void);
 
 //typedefs
 typedef struct {
