@@ -7,7 +7,6 @@ COMPS= comps/mopd\
        comps/nets\
        comps/time\
        comps/rams\
-		 comps/updt\
        comps/volm
 
 util.o : util.c util.h
@@ -34,7 +33,7 @@ debug : barstat.o $(COMPS:=.o) util.o
 clean : 
 	rm */*.o *.o ../barstat comps/bat.h -f
 
-install: all
+install: barstat
 	@echo installing executable file to ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@cp -f ../barstat ${DESTDIR}${PREFIX}/bin

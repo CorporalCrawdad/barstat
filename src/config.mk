@@ -4,7 +4,7 @@ VERSION = 1.0
 # Customize below to fit your system
 
 # paths
-PREFIX = /opt
+PREFIX = /usr/local
 
 # compiler options
-CXX = tcc
+CXX = cc

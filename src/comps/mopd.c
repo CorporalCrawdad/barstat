@@ -42,12 +42,14 @@ mop_dest()
 	if (mpconn) {
 		puts("Disconnecting from MPD...\n");
 		if (mpstatus) mpd_status_free(mpstatus);
+		mpstatus = NULL;
 		if (mpconn)   mpd_connection_free(mpconn);
+		mpconn = NULL;
 		if (mpsong)   mpd_song_free(mpsong);
+		mpsong = NULL;
 	}
 	mpsong_name = NULL;
 	mpstate = 0;
-	mpconn  = NULL;
 	return;
 }
 

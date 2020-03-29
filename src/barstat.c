@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <X11/Xlib.h>
 
 #include "status.h"
@@ -17,12 +18,18 @@ const char *getvolm(void);
 Display *dpy;
 Window   root;
 
-
 void
 cleanup()
 {
+	XStoreName(dpy, root, '\0');
 	XCloseDisplay(dpy);
 	return;
+}
+
+void
+clucatch(int signum)
+{
+	exit(0);
 }
 
 int
@@ -37,6 +44,8 @@ main()
 	}
 	root = XRootWindow(dpy,DefaultScreen(dpy));
 	atexit(cleanup);
+	signal(SIGINT, clucatch);
+	signal(SIGKILL, clucatch);
 
 	for (;;) {
 		status[0] = '\0';
