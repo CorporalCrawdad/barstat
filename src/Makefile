@@ -7,6 +7,7 @@ COMPS= comps/mopd\
        comps/nets\
        comps/time\
        comps/rams\
+       comps/vmst\
        comps/volm
 
 util.o : util.c util.h
@@ -25,10 +26,10 @@ config.h : config.def.h
 	cp config.def.h config.h -n
 
 barstat : barstat.o $(COMPS:=.o) util.o
-	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11
+	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -lvirt
 
 debug : barstat.o $(COMPS:=.o) util.o
-	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -g
+	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -lvirt -g
 
 clean : 
 	rm */*.o *.o ../barstat comps/bat.h -f

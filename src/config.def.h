@@ -4,6 +4,7 @@ baritem items[] = {
 	/* function	prefix phrase	item width	suffix phrase */
 	{ getsong,		"♫[ ",		0,		"]    "  },
 	{ getvolm,		"🔈[",		3,		"%]    " },
+	{ getvmst,		"VM [",		8,		"]    "},
 	{ getbatlvl,		"🔋[",		3,		"%]    " },
 	{ getramu,		"内存[",	5,		"GB/" },
 	{ getramf,		"",		5,		"GB] " },
@@ -15,3 +16,5 @@ baritem items[] = {
 
 const char *net_pref    = "wlp";
 const char *alsa_device = "default"; // if using other than default, it will be something of the form "hw:0"
+const char *vmconn      = "qemu:///system";
+const char *vmname      = "win10";
