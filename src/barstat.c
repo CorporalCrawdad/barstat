@@ -78,7 +78,7 @@ main()
 //		fflush(stdout);
 		XStoreName(dpy, root, status);
 		XFlush(dpy);
-		sleep(1);
+		usleep(100000);
 	}
 	return 0;
 }

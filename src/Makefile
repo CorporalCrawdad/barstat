@@ -3,6 +3,7 @@ all: clean barstat
 
 
 COMPS= comps/mopd\
+       comps/alrm\
        comps/batt\
        comps/nets\
        comps/time\
@@ -26,10 +27,10 @@ config.h : config.def.h
 	cp config.def.h config.h -n
 
 barstat : barstat.o $(COMPS:=.o) util.o
-	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -lvirt
+	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -lvirt -lm
 
 debug : barstat.o $(COMPS:=.o) util.o
-	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -lvirt -g
+	$(CXX) barstat.o $(COMPS:=.o) util.o -o ../barstat -lasound -lmpdclient -lX11 -lvirt -lm -g
 
 clean : 
 	rm */*.o *.o ../barstat comps/bat.h -f

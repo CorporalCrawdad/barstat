@@ -6,7 +6,8 @@
 #include "../util.h"
 
 #define BUF_SZ 1024
-#define HIST_CNT 3
+#define HIST_CNT 300
+#define HIST_MIN 30
 #define MAX_IFACES 6
 
 struct ifacehist
@@ -82,19 +83,21 @@ getnets(int upload)
 {
 	int avg = 0;
 	unsigned long **histp = NULL;
+	int cur_iters = 0;
 
 	if (tracked_ifaces < 0) {
 		net_init ();
 	}
 
 	// update both usage arrays of all interfaces once per pair of calls
-	if (upload)
+	//if (upload)
 		for (int i=0; i<=tracked_ifaces; i++)
 			net_updt (i);
 
 	// array is not full, can't process avg yet
+	cur_iters = ifaces[0].histit;
 	for (int i=0; i<=tracked_ifaces; i++)
-		if (ifaces[i].histit+1 < HIST_CNT) 
+		if (ifaces[i].histit+1 < HIST_MIN) 
 			return 0;
 
 	for (int i=0; i<=tracked_ifaces; i++) {
@@ -104,12 +107,12 @@ getnets(int upload)
 			histp = ifaces[i].dlhist;
 	
 		// get total differences between each data point
-		for (int ii=1; ii<HIST_CNT; ii++)
+		for (int ii=1; ii<ifaces[i].histit; ii++)
 			avg += *histp[ii] - *histp[ii-1];
 	}
 	// average them out and return the result, avoiding dividing by 0
 	if(tracked_ifaces)
-		return (avg / ((HIST_CNT-1)*tracked_ifaces));
+		return (avg / (cur_iters*tracked_ifaces));
 	else
 		return (avg);
 }
