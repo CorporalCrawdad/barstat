@@ -1,7 +1,11 @@
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <X11/Xlib.h>
 
@@ -18,6 +22,8 @@ const char *getvolm(void);
 
 Display *dpy;
 Window   root;
+char     pipeb[512] = {'\0'};
+int      done=0;
 
 void
 cleanup()
@@ -28,9 +34,9 @@ cleanup()
 }
 
 void
-clucatch(int signum)
+sighandle(int signum)
 {
-	exit(0);
+	done=1;
 }
 
 int
@@ -38,19 +44,31 @@ main()
 {
 	size_t   len = 0, buflen;
 	char     status[1024] = {'\0'};
+	char     pbuf[1024] = {'\0'};
+	char     prb[1024] = {'\0'};
+	int      pipefd = 0;
+	int      readlen = 0;
+	struct   sigaction sa;
+
+	atexit(cleanup);
+	sa.sa_handler = sighandle;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGINT, &sa, NULL)==-1) {
+		fprintf(stderr, "ERROR: could not set sighandler\n");
+		exit(1);
+	}
 
 	if ( (dpy=XOpenDisplay(NULL)) == NULL) {
 		fprintf(stderr, "ERROR: could not open display\n");
 		exit(1);
 	}
 	root = XRootWindow(dpy,DefaultScreen(dpy));
-	atexit(cleanup);
-	signal(SIGINT, clucatch);
-	signal(SIGKILL, clucatch);
 
-	for (;;) {
+	while (!done) {
 		status[0] = '\0';
 		len = 0;
+
 		for (int i=0; i<LEN(items); i++) {
 			len += snprintf(status + len, sizeof(status) - len,
 					"%s", items[i].prefix);
@@ -80,5 +98,8 @@ main()
 		XFlush(dpy);
 		usleep(100000);
 	}
+	cleanup();
+	remove(FIFONAME);
+	exit(0);
 	return 0;
 }

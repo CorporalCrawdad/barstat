@@ -87,8 +87,8 @@ getalrm(void)
 		else flags = T_SEC;
 
 		if ( flags & T_DAY ) {
-			tcnt = diff/(60*60*60);
-			diff -= tcnt*60*60*60;
+			tcnt = diff/(60*60*24);
+			diff -= tcnt*60*60*24;
 			snprintf(buff, 5, "%id", tcnt);
 			strncat(out, buff, 5);
 		}

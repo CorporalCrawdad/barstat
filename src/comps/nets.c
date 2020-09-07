@@ -8,7 +8,7 @@
 #define BUF_SZ 1024
 #define HIST_CNT 300
 #define HIST_MIN 30
-#define MAX_IFACES 6
+#define MAX_IFACES 10
 
 struct ifacehist
 {
@@ -34,6 +34,15 @@ extern
        char  buf[1024];
 
 static void
+strip(char *in)
+{
+	char *c = in;
+	while (*c!=':' && *c!='\0')
+		c++;
+	*c = '\0';
+}
+
+static void
 net_init(void)
 {
 	for (int ii=0; ii<MAX_IFACES; ii++) {
@@ -53,10 +62,13 @@ net_init(void)
 
 	fgets(prefbuf, 256, procnetdev);
 	fgets(prefbuf, 256, procnetdev);
-	while (1) {
+	while (tracked_ifaces < MAX_IFACES) {
 		fgets(prefbuf, 256, procnetdev);
 		if(feof(procnetdev)) break;
-		if (!strncmp(prefbuf, "    lo", 6))
+		//printf("line: %s...\t", prefbuf);
+		//strip(prefbuf);
+		fflush(stdout);
+		if (!strncmp(prefbuf, "    lo", 7))
 			continue;	
 		tracked_ifaces++;
 		snprintf(ifaces[tracked_ifaces].net_pref, 7, prefbuf);
@@ -64,7 +76,6 @@ net_init(void)
 	}
 	fclose(procnetdev);
 	free(prefbuf);
-
 }
 
 void

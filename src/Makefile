@@ -2,12 +2,14 @@ include config.mk
 all: clean barstat
 
 
-COMPS= comps/mopd\
+COMPS= \
        comps/alrm\
        comps/batt\
+       comps/mopd\
        comps/nets\
-       comps/time\
+       comps/pipe\
        comps/rams\
+       comps/time\
        comps/vmst\
        comps/volm
 

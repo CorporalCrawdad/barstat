@@ -5,18 +5,19 @@
 
 // FUNCTIONS
 // query interfaces
-const char *getbatlvl(void);
-const char *getnetu(void);
-const char *getnetd(void);
-const char *gettime(void);
-const char *getsong(void);
-const char *getvolm(void);
-const char *getvmst(void);
-const char *getramp(void);
-const char *getramu(void);
-const char *getramt(void);
-const char *getupdt(void);
 const char *getalrm(void);
+const char *getbatlvl(void);
+const char *getnetd(void);
+const char *getnetu(void);
+const char *getpipe(void);
+const char *getramp(void);
+const char *getramt(void);
+const char *getramu(void);
+const char *getsong(void);
+const char *gettime(void);
+const char *getupdt(void);
+const char *getvmst(void);
+const char *getvolm(void);
 
 //typedefs
 typedef struct {
