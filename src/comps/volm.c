@@ -4,7 +4,7 @@
 
 #include "../util.h"
 
-const char *alsa_device;
+extern const char *alsa_device;
 
 const char *
 getvolm()

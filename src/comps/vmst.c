@@ -8,8 +8,8 @@
 virConnectPtr  conn = NULL;
 virDomainPtr   dom  = NULL;
 
-const char *vmname;
-const char *vmconn;
+extern const char *vmname;
+extern const char *vmconn;
 
 void
 dest_vmst(void)
