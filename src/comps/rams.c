@@ -29,7 +29,7 @@ getramp(void)
 	               "Cached: %ld kB\n",
 	               &total, &free, &available, &buffers, &cached) == 5) ?
 	       //bprintf("%d", 100 * ((total - free) - (buffers + cached)) / total) :
-	       bprintf("%d", 100 * ((total - available) / total)) :
+	       bprintf("%d", 100 * (total - available) / total) :
 	       NULL;
 }
 
